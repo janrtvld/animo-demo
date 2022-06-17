@@ -12,9 +12,10 @@ import { prependApiUrl } from '../../../utils/Url'
 export interface Props {
   credentialData: CredentialData[]
   credentials: CredentialRecord[]
+  completed: boolean
 }
 
-export const StarterCredentials: React.FC<Props> = ({ credentialData, credentials }) => {
+export const StarterCredentials: React.FC<Props> = ({ credentialData, credentials, completed }) => {
   return (
     <motion.div
       variants={fadeX}
@@ -34,8 +35,6 @@ export const StarterCredentials: React.FC<Props> = ({ credentialData, credential
             item.credentialDefinitionId
           )
         })?.state
-
-        const completed = state === 'credential-issued' || state === 'done'
 
         return (
           <div key={item.id} className="flex-1 flex flex-row items-center justify-between my-2">

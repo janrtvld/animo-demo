@@ -33,12 +33,12 @@ process.on('unhandledRejection', (error) => {
 })
 
 const run = async () => {
-  const endpoint = process.env.AGENT_ENDPOINT ?? (await connect(5001))
+  const endpoint = process.env.AGENT_ENDPOINT ?? (await connect(9001))
   const agentConfig: InitConfig = {
-    label: 'Animo',
+    label: 'JAnimo',
     walletConfig: {
-      id: 'Animo Solutions',
-      key: process.env.AGENT_WALLET_KEY ?? 'Animo',
+      id: 'JAnimo Solutions',
+      key: process.env.AGENT_WALLET_KEY ?? 'JAnimo',
     },
     indyLedgers: [
       {
@@ -59,7 +59,7 @@ const run = async () => {
   const agent = new Agent(agentConfig, agentDependencies)
 
   const httpInbound = new HttpInboundTransport({
-    port: 5001,
+    port: 9001,
   })
 
   agent.registerInboundTransport(httpInbound)
@@ -100,8 +100,9 @@ const run = async () => {
   })
 
   await startServer(agent, {
-    port: 5000,
+    port: 9000,
     app: app,
+    webhookUrl: 'http://localhost:5000/agent-events',
   })
 }
 

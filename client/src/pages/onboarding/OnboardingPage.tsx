@@ -27,8 +27,8 @@ export const OnboardingPage: React.FC = () => {
   const navigate = useNavigate()
   const { characters, currentCharacter } = useCharacters()
 
-  const { onboardingStep, isCompleted } = useOnboarding()
-  const { id, state, invitationUrl } = useConnection()
+  const { onboardingStep, isCompleted, connectionId } = useOnboarding()
+  const { state, invitationUrl } = useConnection()
   const { credentials } = useCredentials()
 
   const [mounted, setMounted] = useState(false)
@@ -63,7 +63,7 @@ export const OnboardingPage: React.FC = () => {
             characters={characters}
             currentCharacter={currentCharacter}
             onboardingStep={onboardingStep}
-            connectionId={id}
+            connectionId={connectionId}
             connectionState={state}
             invitationUrl={invitationUrl}
             credentials={credentials}

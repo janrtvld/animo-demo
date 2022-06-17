@@ -9,6 +9,7 @@ import proofSlice from './proof/proofSlice'
 import sectionSlice from './section/sectionSlice'
 import useCaseSlice from './useCases/useCasesSlice'
 import walletsSlice from './wallets/walletsSlice'
+import executionsSlice from './workflows/workflowExecutionSlice'
 
 export const VERSION = 4
 
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   proof: proofSlice,
   section: sectionSlice,
   useCases: useCaseSlice,
+  workflowExecution: executionsSlice,
 })
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

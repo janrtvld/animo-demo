@@ -36,6 +36,7 @@ export const DashboardPage: React.FC = () => {
   useEffect(() => {
     // if user doesn't come from onboarding flow
     if (useCases.length === 0 && currentCharacter) {
+      dispatch({ type: 'clearWorkflowExecution' })
       dispatch(fetchAllUseCasesByCharId(currentCharacter.id))
     }
   }, [])

@@ -16,6 +16,7 @@ import { clearConnection } from '../../slices/connection/connectionSlice'
 import { clearCredentials } from '../../slices/credentials/credentialsSlice'
 import { completeOnboarding, nextOnboardingStep, prevOnboardingStep } from '../../slices/onboarding/onboardingSlice'
 import { fetchAllUseCasesByCharId } from '../../slices/useCases/useCasesThunks'
+import { useWorkflowExecution } from '../../slices/workflows/workflowExecutionSelectors'
 import { Progress, OnboardingContent } from '../../utils/OnboardingUtils'
 
 import { CharacterContent } from './components/CharacterContent'
@@ -49,17 +50,15 @@ export const OnboardingContainer: React.FC<Props> = ({
 }) => {
   const darkMode = useDarkMode()
   const dispatch = useAppDispatch()
+  const workflowExecution = useWorkflowExecution()
+  const connectionCompleted = workflowExecution.completedActionIds.length > 1
+  const credentialsAccepted = workflowExecution.status === 'Completed'
 
-  const connectionCompleted = connectionState === 'responded' || connectionState === 'complete'
-  const credentialsAccepted = Object.values(credentials).every(
-    (x) => x.state === 'credential-issued' || x.state === 'done'
-  )
   const isBackDisabled = [Progress.SETUP_START, Progress.ACCEPT_CREDENTIAL].includes(onboardingStep)
   const isForwardDisabled =
     onboardingStep === Progress.CHOOSE_WALLET ||
     (onboardingStep === Progress.RECEIVE_IDENTITY && !connectionCompleted) ||
     (onboardingStep === Progress.ACCEPT_CREDENTIAL && !credentialsAccepted) ||
-    (onboardingStep === Progress.ACCEPT_CREDENTIAL && credentials.length === 0) ||
     (onboardingStep === Progress.PICK_CHARACTER && !currentCharacter)
 
   const addOnboardingProgress = () => {
@@ -112,11 +111,11 @@ export const OnboardingContainer: React.FC<Props> = ({
       [Progress.CONNECTION_COMPLETE]: (
         <ConnectionComplete key={Progress.CONNECTION_COMPLETE} content={OnboardingContent[progress]} />
       ),
-      [Progress.ACCEPT_CREDENTIAL]: currentCharacter && connectionId && (
+      [Progress.ACCEPT_CREDENTIAL]: currentCharacter && (
         <AcceptCredential
           key={Progress.ACCEPT_CREDENTIAL}
           content={OnboardingContent[progress]}
-          connectionId={connectionId}
+          connectionId={''}
           credentials={credentials}
           currentCharacter={currentCharacter}
         />
