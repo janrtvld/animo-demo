@@ -15,10 +15,10 @@ export const Student: Character = {
       name: 'Animo ID Card',
       icon: '/public/student/icon-student.svg',
       attributes: [
-        { name: 'Name', value: 'Jan van Dalen' },
+        { name: 'Name', value: 'Jan Rietveld' },
         { name: 'Date of birth', value: '19990101' },
-        { name: 'Street', value: 'Ambachtstraat 61' },
-        { name: 'City', value: 'Utrecht' },
+        { name: 'Street', value: 'Neerpolderseweg 47' },
+        { name: 'City', value: 'Giessenburg' },
         { name: 'Nationality', value: 'The Netherlands' },
       ],
     },

@@ -19,7 +19,8 @@ export class CredDefService {
     const def = this.credentialDefinitions.find((x) => x.tag === tag)
 
     if (!def) {
-      throw new Error(`CredentialDefinition not found for ${tag}`)
+      return ''
+      // throw new Error(`CredentialDefinition not found for ${tag}`)
     }
 
     return def.id

@@ -13,9 +13,10 @@ export interface Props {
   credentialData: CredentialData[]
   credentials: CredentialRecord[]
   completed: boolean
+  name?: string
 }
 
-export const StarterCredentials: React.FC<Props> = ({ credentialData, credentials, completed }) => {
+export const StarterCredentials: React.FC<Props> = ({ credentialData, credentials, completed, name }) => {
   return (
     <motion.div
       variants={fadeX}
@@ -24,7 +25,7 @@ export const StarterCredentials: React.FC<Props> = ({ credentialData, credential
       className="flex flex-col bg-animo-white dark:bg-animo-black m-4 px-4 py-2 w-auto md:w-96 h-auto rounded-lg shadow"
     >
       <div className="flex-1-1 title mb-2">
-        <h1 className="font-semibold dark:text-white">Starter credentials</h1>
+        <h1 className="font-semibold dark:text-white">{name ? name : 'Starter credentials'}</h1>
         <hr className="text-animo-lightgrey" />
       </div>
       {credentialData.map((item) => {

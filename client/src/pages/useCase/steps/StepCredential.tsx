@@ -12,14 +12,19 @@ import { ActionCTA } from '../../../components/ActionCTA'
 import { Loader } from '../../../components/Loader'
 import { useAppDispatch } from '../../../hooks/hooks'
 import { useInterval } from '../../../hooks/useInterval'
+import { useCurrentCharacter } from '../../../slices/characters/charactersSelectors'
 import {
   deleteCredentialById,
   fetchCredentialsByConId,
   issueCredential,
 } from '../../../slices/credentials/credentialsThunks'
+import { useUseCaseState } from '../../../slices/useCases/useCasesSelectors'
+import { useWorkflowExecution, useWorkflowExecutionId } from '../../../slices/workflows/workflowExecutionSelectors'
+import { fetchWorkflowExecutionById } from '../../../slices/workflows/workflowExecutionThunks'
 import { getAttributesFromProof } from '../../../utils/ProofUtils'
 import { Credential } from '../../onboarding/components/Credential'
 import { FailedRequestModal } from '../../onboarding/components/FailedRequestModal'
+import { StarterCredentials } from '../../onboarding/components/StarterCredentials'
 import { StepInfo } from '../components/StepInfo'
 
 export interface Props {
@@ -37,9 +42,22 @@ export const StepCredential: React.FC<Props> = ({ step, connectionId, issueCrede
   const showFailedRequestModal = () => setIsFailedRequestModalOpen(true)
   const closeFailedRequestModal = () => setIsFailedRequestModalOpen(false)
 
-  const credentialsAccepted = Object.values(credentials).every(
-    (x) => x.state === 'credential-issued' || x.state === 'done'
-  )
+  // const credentialsAccepted = Object.values(credentials).every(
+  //   (x) => x.state === 'credential-issued' || x.state === 'done'
+  // )
+  const uc = useUseCaseState()
+  const char = useCurrentCharacter()
+  const workflowExecutionId = useWorkflowExecutionId()
+  const workflowExecution = useWorkflowExecution()
+  const credentialsAccepted = workflowExecution.status === 'Completed'
+  const actionResult =
+    workflowExecution.status === 'WaitingForTrigger' &&
+    (workflowExecution.payload.actions.issueCredential as {
+      output: {
+        connectionId: string
+        invitationUrl: string
+      }
+    })
   const [issuedCredData, setIssuedCredData] = useState<CredentialData[]>([])
 
   const issueCreds = () => {
@@ -73,28 +91,30 @@ export const StepCredential: React.FC<Props> = ({ step, connectionId, issueCrede
 
   useInterval(
     () => {
-      if (document.visibilityState === 'visible') dispatch(fetchCredentialsByConId(connectionId))
+      if (workflowExecutionId && document.visibilityState === 'visible') {
+        dispatch(fetchWorkflowExecutionById(workflowExecutionId))
+      }
     },
     !credentialsAccepted ? 1000 : null
   )
 
-  const sendNewCredentials = () => {
-    credentials.forEach((cred) => {
-      if (cred.state !== 'credential-issued' && cred.state !== 'done') {
-        dispatch(deleteCredentialById(cred.id))
+  // const sendNewCredentials = () => {
+  //   credentials.forEach((cred) => {
+  //     if (cred.state !== 'credential-issued' && cred.state !== 'done') {
+  //       dispatch(deleteCredentialById(cred.id))
 
-        const newCredential = issuedCredData.find((item) => {
-          const credClass = JsonTransformer.fromJSON(cred, CredentialRecord)
-          return (
-            item.credentialDefinitionId ===
-            credClass.metadata.get<CredReqMetadata>('_internal/indyCredential')?.credentialDefinitionId
-          )
-        })
-        if (newCredential) dispatch(issueCredential({ connectionId: connectionId, cred: newCredential }))
-      }
-    })
-    closeFailedRequestModal()
-  }
+  //       const newCredential = issuedCredData.find((item) => {
+  //         const credClass = JsonTransformer.fromJSON(cred, CredentialRecord)
+  //         return (
+  //           item.credentialDefinitionId ===
+  //           credClass.metadata.get<CredReqMetadata>('_internal/indyCredential')?.credentialDefinitionId
+  //         )
+  //       })
+  //       if (newCredential) dispatch(issueCredential({ connectionId: connectionId, cred: newCredential }))
+  //     }
+  //   })
+  //   closeFailedRequestModal()
+  // }
 
   const renderCredentials = credentials
     .slice()
@@ -116,7 +136,16 @@ export const StepCredential: React.FC<Props> = ({ step, connectionId, issueCrede
       <div className="flex flex-1-1 m-auto">
         <motion.div className={`flex flex-1-1 flex-col m-auto`} variants={fade} animate="show" exit="exit">
           {credentials.length <= (issueCredentials?.length ?? 0) ? (
-            <AnimatePresence exitBeforeEnter>{renderCredentials}</AnimatePresence>
+            <AnimatePresence exitBeforeEnter>
+              {uc.currentUseCase?.sections[0].issueCredentials && (
+                <StarterCredentials
+                  credentialData={uc.currentUseCase?.sections[0].issueCredentials}
+                  credentials={credentials}
+                  completed={credentialsAccepted}
+                  name={'Credentials'}
+                />
+              )}
+            </AnimatePresence>
           ) : (
             <motion.div className="flex flex-col h-full m-auto">
               <Loader />
@@ -125,9 +154,9 @@ export const StepCredential: React.FC<Props> = ({ step, connectionId, issueCrede
         </motion.div>
       </div>
       <ActionCTA isCompleted={credentialsAccepted} onFail={showFailedRequestModal} />
-      {isFailedRequestModalOpen && (
+      {/* {isFailedRequestModalOpen && (
         <FailedRequestModal key="credentialModal" action={sendNewCredentials} close={closeFailedRequestModal} />
-      )}
+      )} */}
     </motion.div>
   )
 }

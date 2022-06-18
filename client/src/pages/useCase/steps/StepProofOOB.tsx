@@ -127,8 +127,8 @@ export const StepProofOOB: React.FC<Props> = ({ proof, proofUrl, step, requested
               <ProofAttributesCard
                 entity={entity}
                 requestedCredentials={requestedCredentials}
-                proof={proof}
                 proofReceived={proofReceived}
+                values={{}}
               />
             </div>
           </motion.div>

@@ -33,7 +33,20 @@ const initialState: WorkflowExecutionState = {
 const workflowExecutionSlice = createSlice({
   name: 'workflowExecutions',
   initialState,
-  reducers: {},
+  reducers: {
+    clearExecution: (state) => {
+      state.id = ''
+      state.status = ''
+      state.workflowRecordId = ''
+      state.completedActionIds = []
+      state.created = 0
+      state.payload = {
+        inputs: {},
+        actions: {},
+      }
+      state.isLoading = false
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(executeWorkflow.pending, (state) => {
@@ -64,10 +77,9 @@ const workflowExecutionSlice = createSlice({
         state.endTime = action.payload.endTime
         state.payload = action.payload.payload
       })
-      .addCase('clearWorkflowExecution', (state) => {
-        state = initialState
-      })
   },
 })
+
+export const { clearExecution } = workflowExecutionSlice.actions
 
 export default workflowExecutionSlice.reducer

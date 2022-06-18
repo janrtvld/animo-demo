@@ -1,7 +1,8 @@
 import type { CredentialData, RequestedCredential, UseCase } from '../../../slices/types'
+import type { CredentialRecord } from '@aries-framework/core'
 import type { CredReqMetadata } from 'indy-sdk'
 
-import { CredentialRecord, JsonTransformer } from '@aries-framework/core'
+import { JsonTransformer } from '@aries-framework/core'
 import { motion } from 'framer-motion'
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -31,14 +32,16 @@ export const UseCaseContainer: React.FC<Props> = ({ useCases, completedUseCaseSl
       .filter((o) => !issueCredentials.find((obj) => obj.name === o?.name))
       .filter((y) => y) as RequestedCredential[]
 
-    const isLocked = !Object.values(requiredCredentials).every((x) =>
-      issuedCredentials
-        .map((y) => {
-          const z = JsonTransformer.fromJSON(y, CredentialRecord)
-          return z.metadata.get<CredReqMetadata>('_internal/indyCredential')?.credentialDefinitionId
-        })
-        .includes(x.credentialDefinitionId)
-    )
+    // const isLocked = !Object.values(requiredCredentials).every((x) =>
+    //   issuedCredentials
+    //     .map((y) => {
+    //       const z = JsonTransformer.fromJSON(y, CredentialRecord)
+    //       return z.metadata.get<CredReqMetadata>('_internal/indyCredential')?.credentialDefinitionId
+    //     })
+    //     .includes(x.credentialDefinitionId)
+    // )
+
+    const isLocked = !Object.values(requiredCredentials).every((x) => x.name.includes('JAnimo'))
 
     const isCompleted = completedUseCaseSlugs.includes(item.slug)
 

@@ -11,26 +11,37 @@ import { prependApiUrl } from '../../../utils/Url'
 export interface Props {
   entity: Entity
   requestedCredentials: RequestedCredential[]
-  proof: ProofRecord
+  values: Value
   proofReceived: boolean
 }
 
-export const ProofAttributesCard: React.FC<Props> = ({ entity, requestedCredentials, proof, proofReceived }) => {
-  const [values, setValues] = useState<Attribute[]>([])
+export interface Value {
+  [key: string]: string
+}
 
-  const formatDate = (prop: string) => {
-    const year = prop.substring(0, 4)
-    const month = prop.substring(4, 6)
-    const day = prop.substring(6, 8)
-    return `${year}-${month}-${day}`
-  }
+export const ProofAttributesCard: React.FC<Props> = ({ entity, requestedCredentials, values, proofReceived }) => {
+  const [values1, setValues1] = useState<Attribute[]>([])
+
+  // const formatDate = (prop: string) => {
+  //   const year = prop.substring(0, 4)
+  //   const month = prop.substring(4, 6)
+  //   const day = prop.substring(6, 8)
+  //   return `${year}-${month}-${day}`
+  // }
+
+  // useEffect(() => {
+  //   if (proofReceived) {
+  //     const attr = getAttributesFromProof(proof)
+  //     setValues(attr)
+  //   }
+  // }, [proofReceived])
 
   useEffect(() => {
-    if (proofReceived) {
-      const attr = getAttributesFromProof(proof)
-      setValues(attr)
+    for (const key in values) {
+      const attribute = { name: key, value: values[key] }
+      setValues1([...values1, attribute])
     }
-  }, [proofReceived])
+  }, [values])
 
   const renderRequestedCreds = requestedCredentials.map((item) => {
     return (
@@ -44,25 +55,23 @@ export const ProofAttributesCard: React.FC<Props> = ({ entity, requestedCredenti
           </div>
         </div>
         <div className="flex flex-1 flex-col md:pl-16">
-          {item.properties?.map((prop: string) => {
-            const value = values.find((x) => x.name === prop)?.value
-            return (
-              <div key={prop} className="flex flex-row">
-                <p className="flex-1-1 text-sm bg-animo-lightgrey dark:bg-animo-darkgrey p-1 px-2 rounded-lg my-1 md:m-2">
-                  {prop.charAt(0).toUpperCase() + prop.slice(1)}
-                </p>
-                <p className="flex-1 text-sm bg-white dark:bg-grey p-1 px-2 rounded-lg m-2 truncate">
-                  {value && prop.includes('Date') ? formatDate(value) : value}
-                </p>
-              </div>
-            )
-          })}
-          {item.predicates && (
-            <div className="flex flex-row">
-              <p className="flex-1-1 text-sm bg-animo-lightgrey dark:bg-animo-darkgrey p-1 px-2 rounded-lg m-2">
-                {item.predicates.name.charAt(0).toUpperCase() + item.predicates.name.slice(1)}
+          {values1.length > 0 ? (
+            values1.map((prop: Attribute) => {
+              return (
+                <div key={prop.name} className="flex flex-row">
+                  <p className="flex-1-1 text-sm bg-animo-lightgrey dark:bg-animo-darkgrey p-1 px-2 rounded-lg my-1 md:m-2">
+                    {prop.name.charAt(0).toUpperCase() + prop.name.slice(1)}
+                  </p>
+                  <p className="flex-1 text-sm bg-white dark:bg-grey p-1 px-2 rounded-lg m-2 truncate">{prop.value}</p>
+                </div>
+              )
+            })
+          ) : (
+            <div key={'name'} className="flex flex-row">
+              <p className="flex-1-1 text-sm bg-animo-lightgrey dark:bg-animo-darkgrey p-1 px-2 rounded-lg my-1 md:m-2">
+                Name
               </p>
-              <p className="flex-1 text-sm bg-white dark:bg-grey p-1 px-2 rounded-lg m-2">{proofReceived && 'OK'}</p>
+              <p className="flex-1 text-sm bg-white dark:bg-grey p-1 px-2 rounded-lg m-2 truncate"></p>
             </div>
           )}
         </div>

@@ -15,6 +15,7 @@ import { usePreferences } from '../../slices/preferences/preferencesSelectors'
 import { setDemoCompleted } from '../../slices/preferences/preferencesSlice'
 import { useAllUseCases } from '../../slices/useCases/useCasesSelectors'
 import { fetchAllUseCasesByCharId } from '../../slices/useCases/useCasesThunks'
+import { clearExecution } from '../../slices/workflows/workflowExecutionSlice'
 import { Footer } from '../landing/components/Footer'
 import { NavBar } from '../landing/components/Navbar'
 
@@ -34,9 +35,11 @@ export const DashboardPage: React.FC = () => {
   const useCases = useAllUseCases()
 
   useEffect(() => {
+    dispatch({ type: 'clearWorkflowExecution' })
+    dispatch(clearExecution())
+
     // if user doesn't come from onboarding flow
     if (useCases.length === 0 && currentCharacter) {
-      dispatch({ type: 'clearWorkflowExecution' })
       dispatch(fetchAllUseCasesByCharId(currentCharacter.id))
     }
   }, [])

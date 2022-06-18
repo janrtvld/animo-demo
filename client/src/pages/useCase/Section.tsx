@@ -14,6 +14,7 @@ import { SmallButton } from '../../components/SmallButton'
 import { useAppDispatch } from '../../hooks/hooks'
 import { StepType } from '../../slices/types'
 import { nextStep, prevStep } from '../../slices/useCases/useCasesSlice'
+import { useWorkflowExecution, useWorkflowExecutionId } from '../../slices/workflows/workflowExecutionSelectors'
 
 import { SideView } from './SideView'
 import { EndContainer } from './components/EndContainer'
@@ -72,10 +73,14 @@ export const Section: React.FC<Props> = ({
   const next = () => dispatch(nextStep())
 
   const isConnectionCompleted = connection.state === 'responded' || connection.state === 'complete'
-  const isProofCompleted = proof?.state === 'presentation-received'
-  const credentialsReceived = Object.values(credentials).every(
-    (x) => x.state === 'credential-issued' || x.state === 'done'
-  )
+  const workflowExecutionId = useWorkflowExecutionId()
+  const workflowExecution = useWorkflowExecution()
+  const isProofCompleted = workflowExecution.completedActionIds.length > 2
+  const credentialsReceived = workflowExecution.status === 'Completed'
+
+  // const credentialsReceived = Object.values(credentials).every(
+  //   (x) => x.state === 'credential-issued' || x.state === 'done'
+  // )
 
   useEffect(() => {
     if (step?.type === StepType.CONNECTION) {
@@ -113,7 +118,7 @@ export const Section: React.FC<Props> = ({
     } else {
       setIsBackDisabled(false)
     }
-  }, [stepCount, proof, connection.state, credentials])
+  }, [stepCount, proof, connection.state, credentials, workflowExecution])
 
   useEffect(() => {
     // automatically go to next step if connection is set up
@@ -174,22 +179,22 @@ export const Section: React.FC<Props> = ({
                 {step.type === StepType.CONNECTION && (
                   <StepConnection key={step.id} step={step} connection={connection} entity={section.entity} />
                 )}
-                {step.type === StepType.CREDENTIAL && connection.id && section.issueCredentials && (
+                {step.type === StepType.CREDENTIAL && section.issueCredentials && (
                   <StepCredential
                     key={step.id}
                     step={step}
-                    connectionId={connection.id}
+                    connectionId={''}
                     issueCredentials={section.issueCredentials}
                     credentials={credentials}
                     proof={proof}
                   />
                 )}
-                {step.type === StepType.PROOF && section.requestedCredentials && connection.id && (
+                {step.type === StepType.PROOF && section.requestedCredentials && (
                   <StepProof
                     key={step.id}
                     proof={proof}
                     step={step}
-                    connectionId={connection.id}
+                    connectionId={'connection.id'}
                     requestedCredentials={section.requestedCredentials}
                     entity={section.entity}
                   />
